@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ROMIYA H4X</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    #mainApp, #loginScreen {
+      width: 90%;
+      max-width: 600px;
+      background: rgba(25, 25, 25, 0.9);
+      padding: 20px;
+      border-radius: 15px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+      transition: all 0.3s ease-in-out;
+    }
+
+    h1 {
+      font-size: 28px;
+      color: cyan;
+      text-shadow: 0 0 15px cyan;
+      text-align: center;
+    }
+
+    h2 {
+      font-size: 22px;
+      color: lightblue;
+      text-shadow: 0 0 10px lightblue;
+    }
+
+    #stats, #currentPrediction {
+      background: rgba(30, 30, 30, 0.8);
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
+      margin-bottom: 20px;
+      transition: transform 0.3s ease;
+    }
+
+    #stats:hover, #currentPrediction:hover {
+      transform: scale(1.03);
+    }
+
+    #prediction {
+      font-size: 22px;
+      font-weight: bold;
+      color: #ff0;
+      text-shadow: 0 0 15px yellow;
+      animation: glowText 1s infinite alternate;
+    }
+
+    @keyframes glowText {
+      from { text-shadow: 0 0 10px yellow; }
+      to { text-shadow: 0 0 25px orange; }
+    }
+
+    .history-item {
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      background: rgba(40, 40, 40, 0.85);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .history-item:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+    }
+
+    .win {
+      color: #0f0;
+      text-shadow: 0 0 10px lime;
+      font-weight: bold;
+    }
+
+    .loss {
+      color: #f00;
+      text-shadow: 0 0 10px red;
+      font-weight: bold;
+    }
+
+    .pending {
+      color: #ffa500;
+      text-shadow: 0 0 10px orange;
+      font-weight: bold;
+    }
+
+    #loginScreen input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      background: #111;
+      border: 1px solid #444;
+      color: #fff;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    #loginScreen button {
+      width: 100%;
+      padding: 12px;
+      background: cyan;
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    #loginScreen button:hover {
+      background: #00ffff;
+    }
+
+    @media (max-width: 600px) {
+      #mainApp, #loginScreen {
+        width: 95%;
+        padding: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="loginScreen">
+    <h1>🔐 Login to Access</h1>
+    <input type="text" id="username" placeholder="Username" />
+    <input type="password" id="password" placeholder="Password" />
+    <button onclick="checkLogin()">Login</button>
+    <p id="loginError" style="color: red; text-align: center; display: none;">Invalid credentials</p>
+  </div>
+
+  <div id="mainApp" style="display: none;">
+    <h1>🔮 ROMIYA H4X</h1>
+    <div id="stats">
+      <p>🏆 Total Wins: <span id="totalWins">0</span></p>
+      <p>❌ Total Losses: <span id="totalLosses">0</span></p>
+      <p>🎯 Accuracy: <span id="accuracy">0%</span></p>
+    </div>
+    <div id="currentPrediction">
+      <p>🕐 Current Period: <span id="currentPeriod">-</span></p>
+      <p>🔮 Prediction: <span id="prediction">-</span></p>
+    </div>
+    <div id="history">
+      <h2>📜 History</h2>
+    </div>
+  </div>
+
+  <script>
+    function checkLogin() {
+      const user = document.getElementById("username").value.trim().toUpperCase();
+      const pass = document.getElementById("password").value;
+
+      if (user === "ADMIN123" && pass === "SABKABAAPROMIYA") {
+        document.getElementById("loginScreen").style.display = "none";
+        document.getElementById("mainApp").style.display = "block";
+      } else {
+        document.getElementById("loginError").style.display = "block";
+      }
+    }
+
+    // Your existing JavaScript code goes here (same as before)...
+
+    let historyData = [];
+    let totalWins = 0;
+    let totalLosses = 0;
+    let currentPeriod = null;
+    let lastFetchedPeriod = null;
+
+    async function fetchGameResult() {
+      try {
+        let response = await fetch("https://api.bdg88zf.com/api/webapi/GetNoaverageEmerdList", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            pageSize: 10,
+            pageNo: 1,
+            typeId: 1,
+            language: 0,
+            random: "4a0522c6ecd8410496260e686be2a57c",
+            signature: "334B5E70A0C9B8918B0B15E517E2069C",
+            timestamp: Math.floor(Date.now() / 1000)
+          })
+        });
+
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        let data = await response.json();
+        return data?.data?.list?.[0] || null;
+      } catch (error) {
+        console.error("Error fetching game result:", error);
+        return null;
+      }
+    }
+
+    function trendAnalysis(history) {
+      let bigCount = history.filter(item => item.result >= 5).length;
+      let smallCount = history.filter(item => item.result < 5).length;
+      return bigCount > smallCount ? "BIG" : "SMALL";
+    }
+
+    function autoPredict() {
+      return { type: trendAnalysis(historyData) };
+    }
+
+    async function updatePrediction() {
+      let result = await fetchGameResult();
+      if (result && result.issueNumber !== lastFetchedPeriod) {
+        lastFetchedPeriod = result.issueNumber;
+        currentPeriod = (BigInt(result.issueNumber) + 1n).toString();
+        let prediction = autoPredict();
+
+        document.getElementById("currentPeriod").innerText = currentPeriod;
+        document.getElementById("prediction").innerText = prediction.type;
+
+        historyData.unshift({
+          period: currentPeriod,
+          result: result.number,
+          prediction: prediction.type,
+          resultStatus: "Pending"
+        });
+
+        updateHistory();
+        checkWinLoss(result);
+      }
+    }
+
+    function checkWinLoss(apiResult) {
+      historyData.forEach(item => {
+        if (item.period === apiResult.issueNumber) {
+          let actual = apiResult.number >= 5 ? "BIG" : "SMALL";
+          item.resultStatus = item.prediction === actual ? "WIN" : "LOSS";
+        }
+      });
+      updateStats();
+      updateHistory();
+    }
+
+    function updateStats() {
+      totalWins = historyData.filter(i => i.resultStatus === "WIN").length;
+      totalLosses = historyData.filter(i => i.resultStatus === "LOSS").length;
+      let total = historyData.length;
+      let accuracy = total ? (totalWins / total * 100).toFixed(2) : "0.00";
+      document.getElementById("totalWins").innerText = totalWins;
+      document.getElementById("totalLosses").innerText = totalLosses;
+      document.getElementById("accuracy").innerText = accuracy + '%';
+    }
+
+    function updateHistory() {
+      const historyDiv = document.getElementById("history");
+      historyDiv.innerHTML = `<h2>📜 History</h2>` + historyData.map(item => `
+        <div class="history-item ${item.resultStatus.toLowerCase()}">
+          ⏳ <strong>Period:</strong> ${item.period}<br>
+          ⭐ <strong>Prediction:</strong> ${item.prediction}<br>
+          ${item.resultStatus === "WIN" ? "✅ WIN" : item.resultStatus === "LOSS" ? "❌ LOSS" : "🟡 Pending"}
+        </div>`).join('');
+    }
+
+    setInterval(() => {
+      if (document.getElementById("mainApp").style.display === "block") {
+        updatePrediction();
+      }
+    }, 3000);
+  </script>
+</body>
+</html>
